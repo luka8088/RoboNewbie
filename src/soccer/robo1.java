@@ -171,40 +171,17 @@ public class robo1 {
     
     if (Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION_TRIGGER
         || turningTowardsTheBall) {
-      //turningTowardsTheBall = Math.abs(ballCoords.getAlpha()) > Math.toRadians(6);
-      //if (turningTowardsTheBall) {
-        if (ballCoords.getAlpha() > 0) {
-          motion.setTurnLeftSmall();
-        } else {
-          motion.setTurnRightSmall();
-        }
-        //return;
-      //}
-        
-      //if (Math.abs(ballCoords.getAlpha()) < 0.1) {
-      //  turningTowardsTheBall = false;
-      //}
+      if (ballCoords.getAlpha() > 0)
+        motion.setTurnLeftSmall();
+      else
+        motion.setTurnRightSmall();
       turningTowardsTheBall =
         Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION;
       return;
     }
-/*
-    // if the ball is not in front of the robot
-    if (Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION) {
-//          log.log("3. the ball is not in front of the robot. ") ;
-      if (motion.isWalking()) {    
-        motion.setStopWalking();
-      } else {
-        if (ballCoords.getAlpha() > 0) {
-          motion.setTurnLeftSmall();
-        } else {
-          motion.setTurnRightSmall();
-        }
-      }
-    } 
 
     // if the robot is far away from the ball
-    else /**/ if (ballCoords.getNorm() > TOLLERATED_DISTANCE) {
+    if (ballCoords.getNorm() > TOLLERATED_DISTANCE) {
 //          log.log("3. the robot is far away from the ball.");
       motion.setWalkForward();
     } 
