@@ -113,6 +113,7 @@ public class KeyframeMotion {
    * 
    */
   public KeyframeMotion(EffectorOutput effOut, PerceptorInput percIn, Logger logger) {
+    super();
     this.effOut = effOut;
     this.percIn = percIn;
     log = logger;
@@ -208,6 +209,10 @@ public class KeyframeMotion {
    */
   public void setTurnRight() {
     if (loggingOn) log.log("motion turn right \n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = TURN_RIGHT_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -220,6 +225,10 @@ public class KeyframeMotion {
    */
   public void setTurnLeft() {
     if (loggingOn) log.log("motion turn left \n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = TURN_LEFT_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -231,6 +240,10 @@ public class KeyframeMotion {
    */
   public void setTurnRightSmall() {
     if (loggingOn) log.log("motion turn right small\n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = TURN_RIGHT_SMALL_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -243,6 +256,10 @@ public class KeyframeMotion {
    */
   public void setTurnLeftSmall() {
     if (loggingOn) log.log("motion turn left small\n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = TURN_LEFT_SMALL_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -282,8 +299,9 @@ public class KeyframeMotion {
     if (loggingOn) log.log("motion walk forward \n");
     if (currentPosture() == "standing") {
       actualSequence = WALK_FORWARD_BEGIN_SEQUENCE;
-      currentPosture_ = "walking-left-leg";
-    } else if (currentPosture() == "walking-left-leg") {
+      currentPosture_ = "walking-begin";
+    } else if (currentPosture() == "walking-begin"
+        || currentPosture() == "walking-left-leg") {
       actualSequence = WALK_FORWARD_LEFT_SEQUENCE;
       currentPosture_ = "walking-right-leg";      
     } else if (currentPosture() == "walking-right-leg") {

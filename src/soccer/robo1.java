@@ -53,7 +53,8 @@ public class robo1 {
   private LookAroundMotion lookAround;
   
   GoalPostModel oppGoalLPost, oppGoalRPost;
-  private static final double TOLLERATED_DEVIATION = Math.toRadians(12);
+  private static final double TOLLERATED_DEVIATION_TRIGGER = Math.toRadians(30);
+  private static final double TOLLERATED_DEVIATION = Math.toRadians(6);
   protected static final double TOLLERATED_DISTANCE = 0.7; // in meters
 
   /** A player is identified in the server by its player ID and its team name. 
@@ -142,6 +143,8 @@ public class robo1 {
       
     }
   }
+  
+  public boolean turningTowardsTheBall = false;
 
   public void decide() {
     if (!motion.ready())
@@ -153,75 +156,91 @@ public class robo1 {
       motion.setStandUp();
       return;
     }
+      
+    // if the robot does not have the actual ball coordinates
+    // ball not visible?
+    if ((serverTime - ball.getTimeStamp()) > lookTime) {
+      motion.setTurnLeft();
+      return;
+    }
 
-    // if the robot has the actual ball coordinates
-    if ((serverTime - ball.getTimeStamp()) < lookTime) {
-        
-        Vector3D ballCoords = ball.getCoords();
+    Vector3D ballCoords = ball.getCoords();
 //        log.log("2. robot has the actual ball coordinates, horizontal angle: " 
 //                + Math.toDegrees(ballCoords.getAlpha()) 
 //                + " distance: " + ballCoords.getNorm()) ;
-
-        // if the ball is not in front of the robot
-        if (Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION) {
+    
+    if (Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION_TRIGGER
+        || turningTowardsTheBall) {
+      //turningTowardsTheBall = Math.abs(ballCoords.getAlpha()) > Math.toRadians(6);
+      //if (turningTowardsTheBall) {
+        if (ballCoords.getAlpha() > 0) {
+          motion.setTurnLeftSmall();
+        } else {
+          motion.setTurnRightSmall();
+        }
+        //return;
+      //}
+        
+      //if (Math.abs(ballCoords.getAlpha()) < 0.1) {
+      //  turningTowardsTheBall = false;
+      //}
+      turningTowardsTheBall =
+        Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION;
+      return;
+    }
+/*
+    // if the ball is not in front of the robot
+    if (Math.abs(ballCoords.getAlpha()) > TOLLERATED_DEVIATION) {
 //          log.log("3. the ball is not in front of the robot. ") ;
-          if (motion.isWalking()) {    
-            motion.setStopWalking();
-          } else {
-            if (ballCoords.getAlpha() > 0) {
-              motion.setTurnLeftSmall();
-            } else {
-              motion.setTurnRightSmall();
-            }
-          }
-        } 
-        
-        // if the robot is far away from the ball
-        else if (ballCoords.getNorm() > TOLLERATED_DISTANCE) {
+      if (motion.isWalking()) {    
+        motion.setStopWalking();
+      } else {
+        if (ballCoords.getAlpha() > 0) {
+          motion.setTurnLeftSmall();
+        } else {
+          motion.setTurnRightSmall();
+        }
+      }
+    } 
+
+    // if the robot is far away from the ball
+    else /**/ if (ballCoords.getNorm() > TOLLERATED_DISTANCE) {
 //          log.log("3. the robot is far away from the ball.");
-          motion.setWalkForward();
-        } 
-        
-        // if the robot has the actual goal coordinates
-        else if ((serverTime - oppGoalLPost.getTimeStamp() < lookTime)
-                && (serverTime - oppGoalRPost.getTimeStamp() < lookTime)) {
+      motion.setWalkForward();
+    } 
+
+    // if the robot has the actual goal coordinates
+    else if ((serverTime - oppGoalLPost.getTimeStamp() < lookTime)
+            && (serverTime - oppGoalRPost.getTimeStamp() < lookTime)) {
 //          log.log("5. the robot has the actual goal coordinates");
 
-          // if the ball does not lie between the robot and the goal
-          if ((oppGoalLPost.getCoords().getAlpha() <= ballCoords.getAlpha())
-                  || (oppGoalRPost.getCoords().getAlpha() >= ballCoords.getAlpha())) {
+      // if the ball does not lie between the robot and the goal
+      if ((oppGoalLPost.getCoords().getAlpha() <= ballCoords.getAlpha())
+              || (oppGoalRPost.getCoords().getAlpha() >= ballCoords.getAlpha())) {
 //            log.log("6. the ball does not lie between the robot and the goal");
-            if (motion.isWalking()) {
-              motion.setStopWalking();
-            } else {
-              if (oppGoalLPost.getCoords().getAlpha() <= ballCoords.getAlpha()) {
-                motion.setSideStepLeft();
-              } else {
-                motion.setSideStepRight();
-              }
-            }
-          } 
-          
-          // if the robot is in a good dribbling position
-          else {
-//            log.log("7. the robot is in a good dribbling position");
-            motion.setWalkForward();
+        if (motion.isWalking()) {
+          motion.setStopWalking();
+        } else {
+          if (oppGoalLPost.getCoords().getAlpha() <= ballCoords.getAlpha()) {
+            motion.setSideStepLeft();
+          } else {
+            motion.setSideStepRight();
           }
-        } 
-        
-        // if the robot cannot sense the goal coordinates from its actual position
-        else {
-//          log.log("5. goal coordinates missing");
-          motion.setTurnLeft();
         }
       } 
-      
-      // if the robot cannot sense the ball coordinates from its actual position
+
+      // if the robot is in a good dribbling position
       else {
-        motion.setTurnLeft();
-//        log.log("1. ball coordinates missing");
-      }    
-    
+//            log.log("7. the robot is in a good dribbling position");
+        motion.setWalkForward();
+      }
+    } 
+
+    // if the robot cannot sense the goal coordinates from its actual position
+    else {
+//          log.log("5. goal coordinates missing");
+      motion.setTurnLeft();
+    }
     
   }
   
