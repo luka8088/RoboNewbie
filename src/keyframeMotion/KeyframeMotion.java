@@ -520,7 +520,11 @@ public class KeyframeMotion {
 //      log.log(percIn.getJointsDebugString() + "\n");
 //    }
 
-    actualKeyframe = actualSequence.getNextFrame();
+    if (actualSequence == null)
+      actualKeyframe = null;
+    else
+      actualKeyframe = actualSequence.getNextFrame();
+    
     if (actualKeyframe == null) {
       actualSequence = null;
       state = MotionState.READY_TO_MOVE;
