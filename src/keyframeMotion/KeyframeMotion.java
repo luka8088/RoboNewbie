@@ -92,6 +92,9 @@ public class KeyframeMotion {
   private static KeyframeSequence WALK_FORWARD_RIGHT_SEQUENCE;
   private static KeyframeSequence WALK_FORWARD_RIGHT_END_SEQUENCE;
   private static KeyframeSequence KICK_THE_BALL_SEQUENCE;
+  private static KeyframeSequence SIDE_STEP_LEFT_KIKA_SEQUENCE;
+  private static KeyframeSequence SIDE_STEP_RIGHT_KIKA_SEQUENCE;
+  
  
   private Keyframe actualKeyframe = null;           // Mit diesen drei Variablen
   private int leftCyclesForActualFrame = 0;         // könnte man state
@@ -146,6 +149,8 @@ public class KeyframeMotion {
     WALK_FORWARD_RIGHT_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-right.txt");
     WALK_FORWARD_RIGHT_END_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-right-end.txt");
     KICK_THE_BALL_SEQUENCE = keyframeReader.getSequenceFromFile("kick_the_ball.txt");
+    SIDE_STEP_LEFT_KIKA_SEQUENCE = keyframeReader.getSequenceFromFile("side-step-left-kika.txt");
+    SIDE_STEP_RIGHT_KIKA_SEQUENCE = keyframeReader.getSequenceFromFile("side-step-right-kika.txt");
   }
 
   protected String currentPosture_ = "standing";
@@ -271,7 +276,7 @@ public class KeyframeMotion {
    */
   public void setSideStepRight() {
     if (loggingOn) log.log("motion side step right \n");
-    actualSequence = SIDE_STEP_RIGHT_SEQUENCE;
+    actualSequence = SIDE_STEP_RIGHT_KIKA_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
 
@@ -283,7 +288,7 @@ public class KeyframeMotion {
    */
   public void setSideStepLeft() {
     if (loggingOn) log.log("motion side step left \n");
-    actualSequence = SIDE_STEP_LEFT_SEQUENCE;
+    actualSequence = SIDE_STEP_LEFT_KIKA_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
 
