@@ -132,8 +132,8 @@ public class KeyframeMotion {
     STAND_UP_FROM_BACK_SEQUENCE = keyframeReader.getSequenceFromFile("stand_up_from_back.txt");
     ROLL_OVER_TO_BACK_SEQUENCE = keyframeReader.getSequenceFromFile("roll_over_to_back.txt");
     STOP_WALKING_SEQUENCE = keyframeReader.getSequenceFromFile("nika_stop_walking.txt");
-    TURN_RIGHT_SEQUENCE = keyframeReader.getSequenceFromFile("turn-right-nika.txt");
-    TURN_LEFT_SEQUENCE = keyframeReader.getSequenceFromFile("turn-left-nika.txt");
+    TURN_RIGHT_SEQUENCE = keyframeReader.getSequenceFromFile("turn-right.txt");
+    TURN_LEFT_SEQUENCE = keyframeReader.getSequenceFromFile("turn-left.txt");
     TURN_RIGHT_SMALL_SEQUENCE = keyframeReader.getSequenceFromFile("turn-right-small-nika.txt");
     TURN_LEFT_SMALL_SEQUENCE = keyframeReader.getSequenceFromFile("turn-left-small-nika.txt");
     SIDE_STEP_RIGHT_SEQUENCE = keyframeReader.getSequenceFromFile("side-step-right-nika.txt");
@@ -276,6 +276,10 @@ public class KeyframeMotion {
    */
   public void setSideStepRight() {
     if (loggingOn) log.log("motion side step right \n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = SIDE_STEP_RIGHT_KIKA_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -288,6 +292,10 @@ public class KeyframeMotion {
    */
   public void setSideStepLeft() {
     if (loggingOn) log.log("motion side step left \n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = SIDE_STEP_LEFT_KIKA_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -415,6 +423,10 @@ public class KeyframeMotion {
 
   public void setKickTheBall() {
     if (loggingOn) log.log("motion kick the ball \n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     actualSequence = KICK_THE_BALL_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
@@ -434,6 +446,10 @@ public class KeyframeMotion {
    */
   public void setTest() {
     if (loggingOn) log.log("motion Test\n");
+    if (isWalking()) {    
+      setStopWalking();
+      return;
+    }
     KeyframeFileHandler keyframeReader 
             = new KeyframeFileHandler();
     actualSequence = keyframeReader.getSequenceFromFile("test.txt");
