@@ -152,19 +152,8 @@ public class KeyframeMotion {
   public String currentPosture () {
     if (percIn.getAcc().getZ() < 7)
       currentPosture_ = "laying-down";
-      //return "laying-down";
-      /*
-      if (percIn.getAcc().getY() > 0) {
-        //setStandUpFromBack();
-        return "laying-down-on-the-back";
-      } else {
-        //setRollOverToBack();
-        return "laying-down";
-      }      
-      /**/
     return currentPosture_;
   }
-  
   
   /**
    * Turn logging of set moves on or off. 
@@ -289,15 +278,8 @@ public class KeyframeMotion {
    * 
    * To return to parallel feet after walking use method setStopWalking().
    */
-  //protected enum WalkingState {
-  //    Standing, LeftStep, RightStep
-  //};
-  //WalkingState currentWalkingState = WalkingState.Standing;
-  
   public void setWalkForward() {
     if (loggingOn) log.log("motion walk forward \n");
-    //if (currentWalkingState == WalkingState.Standing)
-    //  actualSequence = WALK_FORWARD_BEGIN_SEQUENCE;
     if (currentPosture() == "standing") {
       actualSequence = WALK_FORWARD_BEGIN_SEQUENCE;
       currentPosture_ = "walking-left-leg";
@@ -338,7 +320,6 @@ public class KeyframeMotion {
     } else {
       assert(false);
     }
-    //actualSequence = STOP_WALKING_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
   
@@ -608,44 +589,6 @@ public class KeyframeMotion {
               (angleDifference ) / (double)(leftCyclesForActualFrame - 1);
               // cycles - 1, because the last command is always 0
       speed =  (Math.toRadians(thisCycleAngle) / (double) TIME_STEMP_INTERVAL) * (double)1000;
-      //log.log("thisCycleAngle " + thisCycleAngle);
-      //speed = speed * 3;
-      //speed = speed * Math.abs(speed) * 10;
-      /*
-      if (Math.abs(speed) > 0.5)
-        speed = speed * 5;
-      //else if (Math.abs(speed) > 0.1)
-      //  speed = speed * 3;
-      //else if (Math.abs(speed) > 1)
-      //  speed = speed * 3;
-      //else if (Math.abs(speed) > 0.3)
-      //  speed = speed * 1.7;
-      else if (Math.abs(speed) > 0.1)
-        speed = speed;
-      else
-        speed = 0f;
-      /**/
-        //speed = speed / Math.abs(speed) * 1;
-      //else if (speed < 0)
-      //  speed = -0.01;
-      //else
-      //  speed = 0.01;
-        //speed = speed / Math.abs(speed) * 0.01;   
-      //else if (Math.abs(speed) > 0)
-          //log.log("speed gt 0: " + speed + " " + Math.abs(speed));
-      
-    
-      //if (Math.abs(speed) < 0.5 && Math.abs(speed) > 0.1)
-      //    speed = speed / Math.abs(speed) * 0.5;
-      //log.log("speed: " + speed);
-      /*
-      if (Math.abs(thisCycleAngle) > 0.5)
-        speed = speed * 10;
-      else if (Math.abs(thisCycleAngle) > 0.1)
-        speed = speed * 5;
-      else if (Math.abs(thisCycleAngle) > 0.01)
-        speed = speed * 3;
-      /**/
               // multiplication by 1000, because speed has to be per sec, 
               // not per ms.
       lastCycleAngles[angleIndex] = thisCycleAngle;
