@@ -85,6 +85,14 @@ public class KeyframeMotion {
   private static KeyframeSequence TURN_HEAD_RIGHT_SEQUENCE;
   private static KeyframeSequence TURN_HEAD_DOWN_SEQUENCE;
   private static KeyframeSequence WAVE_SEQUENCE;
+  
+  private static KeyframeSequence WALK_FORWARD_BEGIN_SEQUENCE;
+  private static KeyframeSequence WALK_FORWARD_LEFT_SEQUENCE;
+  private static KeyframeSequence WALK_FORWARD_LEFT_END_SEQUENCE;
+  private static KeyframeSequence WALK_FORWARD_RIGHT_SEQUENCE;
+  private static KeyframeSequence WALK_FORWARD_RIGHT_END_SEQUENCE;
+  private static KeyframeSequence KICK_THE_BALL_SEQUENCE;
+ 
   private Keyframe actualKeyframe = null;           // Mit diesen drei Variablen
   private int leftCyclesForActualFrame = 0;         // könnte man state
   private KeyframeSequence actualSequence = null;   // ersetzen, aber so ist der Code verständlicher. 
@@ -130,8 +138,34 @@ public class KeyframeMotion {
     TURN_HEAD_RIGHT_SEQUENCE = keyframeReader.getSequenceFromFile("turn-head-right.txt");
     TURN_HEAD_DOWN_SEQUENCE = keyframeReader.getSequenceFromFile("turn-head-down.txt");
     WAVE_SEQUENCE = keyframeReader.getSequenceFromFile("wave_nika.txt");
+    
+    WALK_FORWARD_BEGIN_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-begin.txt");
+    WALK_FORWARD_LEFT_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-left.txt");
+    WALK_FORWARD_LEFT_END_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-left-end.txt");
+    WALK_FORWARD_RIGHT_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-right.txt");
+    WALK_FORWARD_RIGHT_END_SEQUENCE = keyframeReader.getSequenceFromFile("walk_forward-right-end.txt");
+    KICK_THE_BALL_SEQUENCE = keyframeReader.getSequenceFromFile("kick_the_ball.txt");
   }
 
+  protected String currentPosture_ = "standing";
+  
+  public String currentPosture () {
+    if (percIn.getAcc().getZ() < 7)
+      currentPosture_ = "laying-down";
+      //return "laying-down";
+      /*
+      if (percIn.getAcc().getY() > 0) {
+        //setStandUpFromBack();
+        return "laying-down-on-the-back";
+      } else {
+        //setRollOverToBack();
+        return "laying-down";
+      }      
+      /**/
+    return currentPosture_;
+  }
+  
+  
   /**
    * Turn logging of set moves on or off. 
    * 
@@ -255,10 +289,33 @@ public class KeyframeMotion {
    * 
    * To return to parallel feet after walking use method setStopWalking().
    */
+  //protected enum WalkingState {
+  //    Standing, LeftStep, RightStep
+  //};
+  //WalkingState currentWalkingState = WalkingState.Standing;
+  
   public void setWalkForward() {
     if (loggingOn) log.log("motion walk forward \n");
-    actualSequence = WALK_FORWARD_SEQUENCE;
+    //if (currentWalkingState == WalkingState.Standing)
+    //  actualSequence = WALK_FORWARD_BEGIN_SEQUENCE;
+    if (currentPosture() == "standing") {
+      actualSequence = WALK_FORWARD_BEGIN_SEQUENCE;
+      currentPosture_ = "walking-left-leg";
+    } else if (currentPosture() == "walking-left-leg") {
+      actualSequence = WALK_FORWARD_LEFT_SEQUENCE;
+      currentPosture_ = "walking-right-leg";      
+    } else if (currentPosture() == "walking-right-leg") {
+      actualSequence = WALK_FORWARD_RIGHT_SEQUENCE;
+      currentPosture_ = "walking-left-leg";      
+    } else {
+      assert(false);
+    }
     state = MotionState.BETWEEN_FRAMES;
+  }
+  
+  public boolean isWalking () {
+    return currentPosture() == "walking-left-leg" ||
+      currentPosture() == "walking-right-leg";
   }
 
   /**
@@ -270,9 +327,18 @@ public class KeyframeMotion {
    * 
    * After this move the robot stands on closed parallel feet.
    */
-  public void setStopWalking() {
+  public void setStopWalking() {  
     if (loggingOn) log.log("motion stop walking \n");
-    actualSequence = STOP_WALKING_SEQUENCE;
+    if (currentPosture() == "walking-left-leg") {
+      actualSequence = WALK_FORWARD_LEFT_END_SEQUENCE;
+      currentPosture_ = "standing";      
+    } else if (currentPosture() == "walking-right-leg") {
+      actualSequence = WALK_FORWARD_RIGHT_END_SEQUENCE;
+      currentPosture_ = "standing";      
+    } else {
+      assert(false);
+    }
+    //actualSequence = STOP_WALKING_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
   
@@ -297,6 +363,15 @@ public class KeyframeMotion {
     actualSequence = FALL_FORWARD_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
+  
+  public void setStandUp () {
+    if (percIn.getAcc().getY() > 0)
+      setStandUpFromBack();
+    else
+      setRollOverToBack();    
+  }
+  
+    
 
   /**
    * Set move for standing up, when the robot lies on its back.
@@ -307,6 +382,7 @@ public class KeyframeMotion {
   public void setStandUpFromBack() {
     if (loggingOn) log.log("motion stand up from back \n");
     actualSequence = STAND_UP_FROM_BACK_SEQUENCE;
+    currentPosture_ = "standing";
     state = MotionState.BETWEEN_FRAMES;
   }
   
@@ -332,7 +408,13 @@ public class KeyframeMotion {
     actualSequence = WAVE_SEQUENCE;
     state = MotionState.BETWEEN_FRAMES;
   }
-   
+
+  public void setKickTheBall() {
+    if (loggingOn) log.log("motion kick the ball \n");
+    actualSequence = KICK_THE_BALL_SEQUENCE;
+    state = MotionState.BETWEEN_FRAMES;
+  }
+
   /**
    * Load a test motion from file test.txt and set it for execution. 
    * 
@@ -526,6 +608,44 @@ public class KeyframeMotion {
               (angleDifference ) / (double)(leftCyclesForActualFrame - 1);
               // cycles - 1, because the last command is always 0
       speed =  (Math.toRadians(thisCycleAngle) / (double) TIME_STEMP_INTERVAL) * (double)1000;
+      //log.log("thisCycleAngle " + thisCycleAngle);
+      //speed = speed * 3;
+      //speed = speed * Math.abs(speed) * 10;
+      /*
+      if (Math.abs(speed) > 0.5)
+        speed = speed * 5;
+      //else if (Math.abs(speed) > 0.1)
+      //  speed = speed * 3;
+      //else if (Math.abs(speed) > 1)
+      //  speed = speed * 3;
+      //else if (Math.abs(speed) > 0.3)
+      //  speed = speed * 1.7;
+      else if (Math.abs(speed) > 0.1)
+        speed = speed;
+      else
+        speed = 0f;
+      /**/
+        //speed = speed / Math.abs(speed) * 1;
+      //else if (speed < 0)
+      //  speed = -0.01;
+      //else
+      //  speed = 0.01;
+        //speed = speed / Math.abs(speed) * 0.01;   
+      //else if (Math.abs(speed) > 0)
+          //log.log("speed gt 0: " + speed + " " + Math.abs(speed));
+      
+    
+      //if (Math.abs(speed) < 0.5 && Math.abs(speed) > 0.1)
+      //    speed = speed / Math.abs(speed) * 0.5;
+      //log.log("speed: " + speed);
+      /*
+      if (Math.abs(thisCycleAngle) > 0.5)
+        speed = speed * 10;
+      else if (Math.abs(thisCycleAngle) > 0.1)
+        speed = speed * 5;
+      else if (Math.abs(thisCycleAngle) > 0.01)
+        speed = speed * 3;
+      /**/
               // multiplication by 1000, because speed has to be per sec, 
               // not per ms.
       lastCycleAngles[angleIndex] = thisCycleAngle;

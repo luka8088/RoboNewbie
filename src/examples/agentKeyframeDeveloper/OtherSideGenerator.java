@@ -43,7 +43,7 @@ public class OtherSideGenerator {
     ks = generateOtherSide(ks);
     
     sequenceForConversion = sequenceForConversion.replace(".txt", "");
-    KeyframeFileHandler.writeSequenceToFile(ks, sequenceForConversion + "2" + ".txt");
+    KeyframeFileHandler.writeSequenceToFile(ks, sequenceForConversion + "_other-side" + ".txt");
   }
   
   /**
